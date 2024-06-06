@@ -2,7 +2,7 @@
 
 <h4>An open-source Python program to scrape Njuskalo using Playwright and BeautifulSoup.</h4>
 
-You use the software provided at your own risk. I cannot be held responsible for any potential consequences, including any potential damages.
+Use the software provided at your own risk. I cannot be held responsible for any potential consequences, including any potential damages.
 ### Overview
 This open-source program uses Python to scrape data from Njuskalo.hr. The program uses Playwright to navigate Njuskalo and BeautifulSoup to parse the HTML and extract relevant data. It then saves the data in json format inside the directory of your choosing.
 
