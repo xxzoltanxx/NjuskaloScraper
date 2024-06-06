@@ -1,4 +1,4 @@
-# njuskalo-scraper
+# Njuskalo scraper
 
 <h4>An open-source Python program to scrape Njuskalo using Playwright and BeautifulSoup.</h4>
 
