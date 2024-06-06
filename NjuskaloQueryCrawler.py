@@ -4,8 +4,11 @@ import uvicorn
 import time
 import os
 import random
+import re
 
-class TabCrawler():
+class NjuskaloQueryCrawler():
+    #The blacklisted links which should be skipped
+    blacklistedLinks = {'/luksuzne-nekretnine'}
     #Gets a list of all possible entities on the page. An entity is an entry to the njuskalo website.
     def _getPossibleEntities(self, soup):
         regularEntityList = soup.find('div', class_='EntityList--ListItemRegularAd')
@@ -36,17 +39,19 @@ class TabCrawler():
                             'price' : price_str.strip()
                     })
     #Write a category into a file on disk
-    def _crawlCategoryLink(self, category_href, page, out_folder):
+    def _crawlCategoryLink(self, category_href, page, out_folder, page_limit):
         page.goto('https://www.njuskalo.hr' + category_href)
 
         currentPage = 1
         parsed_items_from_category = []
+        charsToRemoveFromFilename='/?'
+        charsToRemoveFromFilenameRegex = f'[{re.escape(charsToRemoveFromFilename)}]'
         while (True):
             html_from_page = page.content()
             soup = BeautifulSoup(html_from_page, 'html.parser')
             entities = self._getPossibleEntities(soup)
 
-            file = open(out_folder + '/' + category_href.replace("/", "") + '.txt', 'w', encoding='utf-8')
+            file = open(out_folder + re.sub(charsToRemoveFromFilenameRegex, '', category_href) + '.json', 'w', encoding='utf-8')
                 
             for entity in entities:
                 self._crawlEntity(parsed_items_from_category, entity)
@@ -59,7 +64,8 @@ class TabCrawler():
 
             currentPage = currentPage + 1
             nextPageLink = self._getNextPageLink(soup)
-            if (nextPageLink == None):
+            shouldConsiderPageLimit = page_limit != None
+            if ((nextPageLink == None) or (shouldConsiderPageLimit and (page_limit == (currentPage - 1)))):
                 file.close()
                 break
             else:
@@ -69,19 +75,19 @@ class TabCrawler():
                 page.goto(nextPageLink)
 
     #The crawling mechanism for user picked categories:
-    def crawlSelectedCategory(self, page, out_folder, category_href):
+    def crawlSelectedCategory(self, page, options):
         page.goto('https://www.njuskalo.hr')
 
-        time.sleep(10.0)
+        time.sleep(3)
 
-        self._crawlCategoryLink(category_href, page, out_folder)
+        self._crawlCategoryLink(options.categoryHref, page, options.outFolder, options.pageLimit)
 
     #The crawling mechanism
-    def crawlSelectedTab(self, page, out_folder, url_of_tab):
+    def crawlSelectedTab(self, page, options):
         # Navigate to the URL.
-        page.goto(url_of_tab)
+        page.goto(options.tab)
 
-        time.sleep(10.0)
+        time.sleep(3)
 
         html = page.content()
         soup = BeautifulSoup(html, 'html.parser')
@@ -97,18 +103,25 @@ class TabCrawler():
 
         for link in links_to_crawl:
             category_href = link['href']
+            if (category_href in self.blacklistedLinks):
+                print('Skipping: ' + category_href +'. Blacklisted.')
+                continue
             print(category_href)
 
-            self._crawlCategoryLink(category_href, page, out_folder)
+            self._crawlCategoryLink(category_href, page, options.outFolder, options.pageLimit)
 
     #If there is no page after this, returns None
     def _getNextPageLink(self, soup):
-        pagination_html = soup.find('ul', class_='Pagination-items')
-        nextButtonSpan = pagination_html.find('span', text='»')
-        if (nextButtonSpan == None):
+        try:
+            pagination_html = soup.find('ul', class_='Pagination-items')
+            nextButtonSpan = pagination_html.find('span', text='»')
+            if (nextButtonSpan == None):
+                return None
+            else:
+                try:
+                    return nextButtonSpan.parent['data-href']
+                except:
+                    return nextButtonSpan.parent['href']
+        except:
             return None
-        else:
-            try:
-                return nextButtonSpan.parent['data-href']
-            except:
-                return nextButtonSpan.parent['href']
+        
