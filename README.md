@@ -6,6 +6,8 @@ Use the software provided at your own risk. I cannot be held responsible for any
 ### Overview
 This open-source program uses Python to scrape data from Njuskalo.hr. The program uses Playwright to navigate Njuskalo and BeautifulSoup to parse the HTML and extract relevant data. It then saves the data in json format inside the directory of your choosing.
 
+You can scrape any category you choose, or whole tabs inside njuskalo (Nekretnine, Auto-Moto, etc...)
+
 ### Installing and usage
 1)Clone the repository
 
