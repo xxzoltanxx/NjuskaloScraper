@@ -1,5 +1,6 @@
 from enum import Enum;
 from NjuskaloTab import NjuskaloTab
+import os
 
 class CustomCategoryCrawlingOptions:
     #categoryHref example: '/prodaja-kuca'
@@ -8,7 +9,7 @@ class CustomCategoryCrawlingOptions:
     def __init__(self, categoryHref, outFolder, pageLimit = None):
         self.categoryHref = categoryHref
         self.pageLimit = pageLimit
-        self.outFolder = outFolder + "\\\\"
+        self.outFolder = outFolder
 
 class TabCrawlingOptions:
     #tab: NjuskaloTab.AutoMoto, NjuskaloTab.Nekretnine, NjuskaloTab.Marketplace 

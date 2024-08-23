@@ -50,7 +50,7 @@ class NjuskaloQueryCrawler():
             soup = BeautifulSoup(html_from_page, 'html.parser')
             entities = self._getPossibleEntities(soup)
 
-            file = open(out_folder + re.sub(charsToRemoveFromFilenameRegex, '', category_href) + '.json', 'w', encoding='utf-8')
+            file = open(os.path.join(out_folder, re.sub(charsToRemoveFromFilenameRegex, '', category_href) + '.json'), 'w', encoding='utf-8')
                 
             for entity in entities:
                 self._crawlEntity(parsed_items_from_category, entity)
@@ -77,7 +77,7 @@ class NjuskaloQueryCrawler():
     def crawlSelectedCategory(self, page, options):
         page.goto('https://www.njuskalo.hr')
 
-        time.sleep(3)
+        time.sleep(random.uniform(3,4.5))
 
         self._crawlCategoryLink(options.categoryHref, page, options.outFolder, options.pageLimit)
 
@@ -86,7 +86,7 @@ class NjuskaloQueryCrawler():
         # Navigate to the URL.
         page.goto(options.tab)
 
-        time.sleep(3)
+        time.sleep(random.uniform(3,4.5))
 
         html = page.content()
         soup = BeautifulSoup(html, 'html.parser')
