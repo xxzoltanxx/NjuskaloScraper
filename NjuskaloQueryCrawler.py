@@ -24,17 +24,24 @@ class NjuskaloQueryCrawler():
     def _crawlEntity(self, parsed_items, entity):
         if (entity.find('article', class_='entity-body') == None):
             return
+        
+        #Prep of entity description for easier parsing
+        description_str_raw = entity.find('div', class_='entity-description-main').text
+        living_area_str = re.search(r'(\d+(\.\d+)?)\s* m2', description_str_raw)
+        location_str = re.search(r'Lokacija:\s*(.*)', description_str_raw)
+
         name_str = entity.find('a').text
-        location_str = entity.find('div', class_='entity-description-main').text
-        time_str = entity.find('time').text
+        # location_str = entity.find('div', class_='entity-description-main').text
+        published_str = entity.find('time').text
         price_str = entity.find('strong', class_='price--hrk').text
 
         print("Scraped " + name_str)
 
         parsed_items.append({
                             'name' : name_str.strip(),
-                            'location' : location_str.strip(),
-                            'time' : time_str,
+                            'location' : location_str.group(1),
+                            'Living Area': living_area_str.group(0),
+                            'published' : published_str,
                             'price' : price_str.strip()
                     })
     #Write a category into a file on disk
