@@ -30,7 +30,10 @@ class NjuskaloQueryCrawler():
         living_area_str = re.search(r'(\d+(\.\d+)?)\s* m2', description_str_raw)
         location_str = re.search(r'Lokacija:\s*(.*)', description_str_raw)
 
-        name_str = entity.find('a').text
+        name_data = entity.find('a')
+
+        name_str = name_data.text
+        link_str = name_data['href']
         # location_str = entity.find('div', class_='entity-description-main').text
         published_str = entity.find('time').text
         price_str = entity.find('strong', class_='price--hrk').text
@@ -42,7 +45,8 @@ class NjuskaloQueryCrawler():
                             'location' : location_str.group(1),
                             'Living Area': living_area_str.group(0),
                             'published' : published_str,
-                            'price' : price_str.strip()
+                            'price' : price_str.strip(),
+                            'link' : link_str
                     })
     #Write a category into a file on disk
     def _crawlCategoryLink(self, category_href, page, out_folder, page_limit):

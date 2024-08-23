@@ -54,6 +54,7 @@ class TerminalEngine:
         options = TabCrawlingOptions(tab_option, data_folder, int(page_num_option))
         crawler = NjuskaloCrawler()
         crawler.crawlTab(options = options)
+        
     def _runCustomCategory(self):
         print("Pick a category link to crawl: '/prodaja-kuca', '/prodaja-kuca/istra', etc...")
         print("This is basically everyhing after www.njuskalo.hr in the link in chrome")
