@@ -24,18 +24,29 @@ class NjuskaloQueryCrawler():
     def _crawlEntity(self, parsed_items, entity):
         if (entity.find('article', class_='entity-body') == None):
             return
-        name_str = entity.find('a').text
-        location_str = entity.find('div', class_='entity-description-main').text
-        time_str = entity.find('time').text
+        
+        #Prep of entity description for easier parsing
+        description_str_raw = entity.find('div', class_='entity-description-main').text
+        living_area_str = re.search(r'(\d+(\.\d+)?)\s* m2', description_str_raw)
+        location_str = re.search(r'Lokacija:\s*(.*)', description_str_raw)
+
+        name_data = entity.find('a')
+
+        name_str = name_data.text
+        link_str = name_data['href']
+        # location_str = entity.find('div', class_='entity-description-main').text
+        published_str = entity.find('time').text
         price_str = entity.find('strong', class_='price--hrk').text
 
         print("Scraped " + name_str)
 
         parsed_items.append({
                             'name' : name_str.strip(),
-                            'location' : location_str.strip(),
-                            'time' : time_str,
-                            'price' : price_str.strip()
+                            'location' : location_str.group(1),
+                            'Living Area': living_area_str.group(0),
+                            'published' : published_str,
+                            'price' : price_str.strip(),
+                            'link' : link_str
                     })
     #Write a category into a file on disk
     def _crawlCategoryLink(self, category_href, page, out_folder, page_limit):
@@ -50,7 +61,7 @@ class NjuskaloQueryCrawler():
             soup = BeautifulSoup(html_from_page, 'html.parser')
             entities = self._getPossibleEntities(soup)
 
-            file = open(out_folder + re.sub(charsToRemoveFromFilenameRegex, '', category_href) + '.json', 'w', encoding='utf-8')
+            file = open(os.path.join(out_folder, re.sub(charsToRemoveFromFilenameRegex, '', category_href) + '.json'), 'w', encoding='utf-8')
                 
             for entity in entities:
                 self._crawlEntity(parsed_items_from_category, entity)
@@ -77,7 +88,7 @@ class NjuskaloQueryCrawler():
     def crawlSelectedCategory(self, page, options):
         page.goto('https://www.njuskalo.hr')
 
-        time.sleep(3)
+        time.sleep(random.uniform(3,4.5))
 
         self._crawlCategoryLink(options.categoryHref, page, options.outFolder, options.pageLimit)
 
@@ -86,7 +97,7 @@ class NjuskaloQueryCrawler():
         # Navigate to the URL.
         page.goto(options.tab)
 
-        time.sleep(3)
+        time.sleep(random.uniform(3,4.5))
 
         html = page.content()
         soup = BeautifulSoup(html, 'html.parser')

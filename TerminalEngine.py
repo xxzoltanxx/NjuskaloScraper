@@ -54,6 +54,7 @@ class TerminalEngine:
         options = TabCrawlingOptions(tab_option, data_folder, int(page_num_option))
         crawler = NjuskaloCrawler()
         crawler.crawlTab(options = options)
+        
     def _runCustomCategory(self):
         print("Pick a category link to crawl: '/prodaja-kuca', '/prodaja-kuca/istra', etc...")
         print("This is basically everyhing after www.njuskalo.hr in the link in chrome")
@@ -66,13 +67,13 @@ class TerminalEngine:
 
         page_num_option = None
         if (choice != '0' and choice.isdigit()):
-            page_num_option = choice
+            page_num_option = int(choice)
         
         print("Enter the directory to save, like: C:\\Folder\\Where\\You\\Want\\Data")
 
         data_folder = input()
 
-        options = CustomCategoryCrawlingOptions(category_href, data_folder, int(page_num_option))
+        options = CustomCategoryCrawlingOptions(category_href, data_folder, page_num_option)
         crawler = NjuskaloCrawler()
         crawler.crawlCustomCategory(options = options)
 
